@@ -1,0 +1,646 @@
+---
+title: "Scaling Up Data Workflows"
+subtitle: "with Arrow, Parquet, and DuckDB"
+author: "Neal Richardson"
+institute: "useR! Conference 2025"
+date: "10 August 2025"
+format:
+  clean-revealjs:
+    include-in-header:
+      text: |
+        <style>
+        .container {
+            height: 100%;
+            width: 100%;
+            display: table;
+            table-layout: fixed;
+            text-align: center;
+        }
+
+        .inside {
+            vertical-align: middle;
+            display: table-cell;
+        }
+
+        .really-big {
+            font-size: 256px;
+        }
+
+        .extrapad {
+            margin-top:1em  !important;
+        }
+        .v-spacier {
+            margin-bottom: 2em;
+            margin-top: 2em;
+        }
+
+        div.my-footer {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            height: 20px;
+            width: 100%;
+        }
+        div.my-footer span {
+            font-size: 16pt;
+            font-family: "Roboto", sans-serif;
+            position: absolute;
+            color: #777;
+            left: 16px;
+            bottom: 16px;
+        }
+
+        .qrcode {
+            display: flex;
+            justify-content: center;
+        }
+        </style>
+        <div class="my-footer"><span>https://enpiar.com/user-2025/</span></div>
+editor:
+  render-on-save: true
+---
+
+## 😂 {.center .really-big}
+
+<!-- R is fun! -->
+
+<!-- Until your data gets really big -->
+## 😭 {.center .really-big}
+
+<!-- R is designed to work with data that fits in memory -->
+## 🧠 {.center .really-big}
+
+<!-- When it doesn't, it's not pretty. And we have to reach for other tools -->
+## 🤯 {.center .really-big}
+
+## <img src="img/arrow-logo.png"/> {.center}
+
+<!-- Today I'm going to talk about how the Arrow project and broader ecosystem of tools can help us work with large datasets in R.
+-->
+
+## <img src="img/arrow-hex.png" height="500px"/> {.center}
+
+<!-- I'm one of the creators of the `arrow` R package, and most of the examples I'll show are from it.
+
+how many of you are familiar with the arrow package? have used it?
+-->
+
+## <img src="img/arrow-site.png"/>
+
+<!-- But the Arrow project is much larger than one package. At its core, Arrow is a standard for how to represent data efficiently. And there is a whole ecosystem of tools and libraries that work together to make data processing easier and more efficient. This common standard allows them to interoperate easily. So I'll also talk about some of the other packages that are part of this ecosystem.
+ -->
+
+## Example
+
+US Census Public Use Microdata Sample (PUMS)
+
+* 53 million rows
+
+* 311 columns
+
+* 45 GB in CSVs on disk
+
+* ~80 GB in memory in R (if it were possible)
+
+## Example
+
+With `arrow`, it is possible
+
+```r
+library(arrow)
+library(dplyr)
+library(tictoc)
+
+pums_person <- open_dataset("./data/person")
+
+tic()
+pums_person |>
+  filter(year == 2021, grepl("Subway|Light rail", JWTRNS)) |>
+  summarize(n = sum(PWGTP)) |>
+  collect()
+
+## # A tibble: 1 × 1
+##         n
+##     <int>
+## 1 1495898
+toc()
+
+## 0.157 sec elapsed
+```
+
+## How does this work?
+
+1. Parquet files for storing data on disk
+
+2. Dataset: data chunked into meaningful partitions (files)
+
+3. Arrow's fast query engine, computing in parallel across chunks of data
+
+## There's a book!
+
+<!-- If you want to go deeper on any of these topics, we have a book! -->
+
+:::: {.columns}
+
+::: {.column width="50%" .fragment style="text-align: center;"}
+
+<img src="img/book.jpg" alt="book cover" height="300px"/>
+
+<!-- Note: I modified qrcode.lua so that it wraps the QR code in an <a> tag -->
+{{< qrcode www.routledge.com/9781032660288 >}}
+
+20% off with code `25AFLY3`
+:::
+
+::: {.column width="50%" .fragment style="text-align: center;"}
+
+<img src="img/book-site.jpg" alt="book site" height="300px"/>
+
+{{< qrcode https://arrowrbook.com >}}
+
+[arrowrbook.com](https://arrowrbook.com)
+
+:::
+
+::::
+
+## 1. Parquet files
+
+<!-- parquet logo, link to website -->
+
+<!-- Like Arrow, Parquet is a project affiliated with the ASF and defines an open source specification for data files, and also like Arrow, it has become the standard for how to store data in the modern data stack.
+
+Wide adoption both because of its efficiency and because it is a common format that many tools can read and write.
+
+Let's talk about why it is efficient, and to start, let's talk about how it is different from CSV files.
+ -->
+
+* Open standard file format for storing data on disk
+
+* Arrow : Memory :: Parquet : Disk
+
+* Widely adopted across big data ecosystem, implemented in many languages
+
+{{< qrcode https://arrowrbook.com/files_and_formats.html >}}
+
+
+## CSV vs. Parquet
+
+::: {.incremental}
+* Row vs. column orientation: Parquet is **columnar** (like R and Arrow)
+
+* Columnar allows selected reading of data: we usually don't need all columns
+
+* Columnar allows better compression and encoding
+
+* Types: **rich type system** in Parquet, including nested and complex types
+
+* Types are preserved in schema, not inferred at read time
+
+* **High fidelity, smaller file sizes, faster reads**
+
+* CSV has always been the lowest common denominator, but Parquet is widely supported today
+
+:::
+
+{{< qrcode https://arrowrbook.com/files_and_formats.html#summary >}}
+
+## Reading and writing Parquet files
+
+```r
+library(arrow)
+
+# Write a Parquet file
+write_parquet(mtcars, "mtcars.parquet")
+
+# Read a Parquet file
+mtcars_parquet <- read_parquet("mtcars.parquet")
+```
+
+## Reading and writing Parquet files
+
+```r
+library(nanoparquet)
+
+# Write a Parquet file
+write_parquet(mtcars, "mtcars.parquet")
+
+# Read a Parquet file
+mtcars_parquet <- read_parquet("mtcars.parquet")
+```
+
+## nanoparquet vs. arrow Reader
+
+- **nanoparquet**
+  - Lightweight Parquet reader
+  - Minimal dependencies
+  - Good for embedding
+
+- **arrow**
+  - Full-featured reader
+  - Support for datasets
+  - Integration with Arrow ecosystem
+
+## nanoparquet vs. arrow Reader
+
+```r
+system.time({
+  df <- arrow::read_parquet("CA_person_2021.parquet")
+})
+
+##   user  system elapsed
+##  1.017   0.207   0.568
+
+system.time({
+  df <- nanoparquet::read_parquet("CA_person_2021.parquet")
+})
+
+##   user  system elapsed
+##  0.709   0.099   0.894
+```
+
+## 2. Datasets and partitioning
+
+<!-- but in the query I showed above, we didn't read individual files, we 800+ files as one entity -->
+
+```r
+pums_person
+
+## FileSystemDataset with 884 Parquet files
+## 311 columns
+## SPORDER: int32
+## RT: dictionary<values=string, indices=int32>
+## SERIALNO: string
+## PUMA: string
+## ST: string
+## ADJUST: int32
+## PWGTP: int32
+...
+```
+
+## 2. Datasets and partitioning
+
+<!-- In fact, that's how our PUMS dataset is stored: -->
+
+```r
+pums_person$files[1:10] |> stringr::str_replace("^.*data/person/", "")
+
+##  [1] "year=2005/location=ak/part-0.parquet"
+##  [2] "year=2005/location=al/part-0.parquet"
+##  [3] "year=2005/location=ar/part-0.parquet"
+##  [4] "year=2005/location=az/part-0.parquet"
+##  [5] "year=2005/location=ca/part-0.parquet"
+##  [6] "year=2005/location=co/part-0.parquet"
+##  [7] "year=2005/location=ct/part-0.parquet"
+##  [8] "year=2005/location=dc/part-0.parquet"
+##  [9] "year=2005/location=de/part-0.parquet"
+## [10] "year=2005/location=fl/part-0.parquet"
+```
+
+"Hive-style partitioning": both column names and values are encoded in the file path
+
+## 2. Datasets and partitioning
+
+* Convention: directory (or bucket in cloud storage) of Parquet files with a common schema
+
+* We can split data into files called partitions based on the values of one or more columns
+
+* When we query it, can skip over files that don't match our query
+
+<!-- , which is one trick that helps make many queries fast -->
+
+{{< qrcode https://arrowrbook.com/datasets.html >}}
+
+
+## 2. Datasets and partitioning
+
+Example query from before:
+
+```r
+pums_person |>
+  filter(year == 2021, grepl("Subway|Light rail", JWTRNS)) |>
+  summarize(n = sum(PWGTP)) |>
+  collect()
+```
+
+We didn't have to scan 884 files, we only had to scan the 52 files that contain data for the year 2021:
+<!-- but don't talk about column selection here, save that for query engine -->
+
+```r
+pums_person$files |>
+  stringr::str_detect("year=2021") |>
+  sum()
+
+## [1] 52
+```
+
+## How to (re)partition with arrow
+
+```r
+my_dataset <- open_csv_dataset(path = "./data/my-oversized-csv.csv")
+
+my_dataset |>
+  mutate(year = year(datetime), month = month(datetime)) |>
+  write_dataset(
+    path = "./data/my-much-nicer-parquet-dataset",
+    partitioning = c("year", "month")
+  )
+```
+
+* Can point at a single large file that you can't read into memory: `arrow` can process in chunks
+
+* Can use a dataset that already has partitions and write to new partitions
+
+## Optimal partitioning
+
+::: {.fragment}
+
+### **It depends!**
+
+:::
+
+::: {.incremental}
+* What queries you will run
+
+* Number of unique values in partition columns
+
+* Too many partitions --> too many files, lose the benefits of column orientation and compression
+:::
+
+{{< qrcode https://arrowrbook.com/datasets.html#how-partitioning-affects-performance >}}
+
+
+## 3. Query engines
+
+<!-- query engine is database - storage. draw diagrams: database is box containing query engine + storage. then we split them. then we say storage is directory of partitioned files. then engines are arrow or duckdb.
+
+-->
+
+## {style="text-align: center;"}
+
+<img src="img/database.png"/>
+
+## {style="text-align: center;"}
+
+<img src="img/qe-and-storage.png"/>
+
+## {style="text-align: center;"}
+
+<img src="img/separated.png"/>
+
+## {style="text-align: center;"}
+
+<img src="img/qe-with-files.png"/>
+
+## {style="text-align: center;"}
+
+<img src="img/packages.png"/>
+
+
+<!--
+
+one great feature of this architecture is that you don't need some service always running to query the data. arrow and duckdb are just packages you load into your R process, and the data is just there on disk. so it's way simpler -->
+
+<!-- One great thing about this stack is that query engines and storage are decoupled. Arrow and DuckDB can both read and write Parquet files, so you can use either one as your query engine, or even use both in the same workflow if you want to. And the engine itself is just a library that you can install from CRAN, and it runs in your R process, so you don't have any extra infrastructure to manage. -->
+
+## Query planning and lazy evaluation
+<!-- query engine is different from operating on a data frame in memory. we basically have to plan out what we want it to do, not just do one step and then the next. that way, it can make optimizations.
+
+To do this with dplyr, arrow works similarly to `dbplyr` and builds up a query with each step in your pipeline, and it only evaluates it when you call `collect()`. [show example query output; also show how this means it can determine that not only do we only need those 52 files, we only touch 2 other columns in the data, so we don't even need to read in the other 309.]
+-->
+
+```r
+pums_person |>
+  filter(year == 2021, grepl("Subway|Light rail", JWTRNS)) |>
+  summarize(n = sum(PWGTP)) |>
+  collect()
+```
+
+* Each step builds up a query, like `dbplyr`
+
+* No computation happens until `collect()`
+
+* This allows optimizations: only need 52 files and 2 columns, not 884 files and 311 columns
+
+## `arrow` has great `dplyr` support
+<!--
+`arrow` has great dplyr support, including mappings for over 200 R functions, much of `stringr` and `lubridate`, so you can use your existing R code with it, and it will get turned into the query structure that it needs.
+
+then what about duckdb
+-->
+
+```r
+pums_person |>
+  filter(AGEP > 18) |>
+  transmute(
+    higher_education = stringr::str_detect(SCHL, "(Bach|Mast|Prof|Doct|college|degree)")
+  )
+
+## FileSystemDataset (query)
+## higher_education: bool (match_substring_regex(SCHL, {pattern="(Bach|Mast|Prof|Doct|college|degree)", ignore_case=false}))
+##
+## * Filter: (AGEP > 18)
+## See $.data for the source Arrow object
+```
+
+## `arrow` has great `dplyr` support
+
+* Currently: 222 R functions, 37 `dplyr` verbs
+
+* All the things you'd expect from `dbplyr`
+
+* Deep support for `stringr` and `lubridate`
+
+* Additional `arrow` compute functions (280) available
+
+* User-defined functions (UDFs): write your own R function and run in the `arrow` query engine
+
+:::: {.columns}
+
+::: {.column width="50%" style="text-align: center;"}
+
+{{< qrcode https://arrowrbook.com/data_manipulation.html >}}
+
+Book chapter
+
+:::
+
+::: {.column width="50%" style="text-align: center;"}
+
+{{< qrcode https://arrow.apache.org/docs/r/reference/acero.html >}}
+
+List of supported functions
+
+:::
+::::
+
+## Should I use arrow or duckdb?
+
+::: {.fragment}
+### **Yes!**
+:::
+
+::: {.fragment}
+* For many workflows, either one will serve just fine
+
+* Historically, `arrow` has had richer dplyr integration
+
+* If you need advanced SQL features, use `duckdb`
+
+* Mostly a matter of preference
+:::
+
+## {background-image="img/por-que-no-los-dos.gif"}
+
+## {style="text-align: center;"}
+
+<img src="img/arrow-and-duckdb.png"/>
+
+## arrow *and* duckdb
+
+```r
+pums_person |>
+  group_by(location) |>
+  summarize(
+    max_commute = max(JWMNP, na.rm = TRUE),
+    min_commute = min(JWMNP, na.rm = TRUE)
+  ) |>
+  to_duckdb() |> # send data to duckdb
+  pivot_longer(!location, names_to = "metric") |>
+  to_arrow() |> # return data back to arrow
+  collect()
+```
+
+## arrow *and* duckdb
+
+```r
+open_dataset("gs://anonymous@scaling-arrow-pums/person/") |>
+  to_duckdb(table_name = "pums8") |>
+  dbplyr::remote_con() |>
+  DBI::dbGetQuery("
+    SELECT
+      year,
+      SUM(AGEP * PWGTP) / SUM(PWGTP) AS mean_age
+    FROM (SELECT * FROM pums8 WHERE location = 'wa')
+    GROUP BY year")
+```
+
+## Key takeaways
+
+* Use Parquet files
+
+* Split large datasets into partitions based on common query patterns
+
+* Run modern query engines (`arrow`, `duckdb`) on your machine: just install from CRAN, no need for a big compute cluster or service
+
+* The `arrow` package provides a lot of this all in one. But if you need something lighterweight or more specialized, you have options (`nanoparquet`, `nanoarrow`, `duckdb`, etc.)
+
+* The Arrow format is the key to this modern data stack. It is what allows all of these tools to work together and share data efficiently
+
+## Resources
+
+:::: {.columns}
+::: {.column style="text-align: center; width: 33%;"}
+
+These slides
+
+{{< qrcode https://enpiar.com/user-2025/ >}}
+
+<!-- [enpiar.com/user-2025/](https://enpiar.com/user-2025/) -->
+
+:::
+::: {.column style="text-align: center; width: 33%;"}
+
+Arrow R package
+
+{{< qrcode https://arrow.apache.org/docs/r/ >}}
+
+<!-- [arrow.apache.org/docs/r/](https://arrow.apache.org/docs/r/) -->
+
+:::
+
+::: {.column style="text-align: center; width: 33%;"}
+
+Arrow project
+{{< qrcode https://arrow.apache.org/ >}}
+
+<!-- [arrow.apache.org](https://arrow.apache.org/) -->
+
+:::
+::::
+
+:::: {.columns}
+::: {.column style="text-align: center; width: 33%;"}
+
+Book website
+
+{{< qrcode https://arrowrbook.com/ >}}
+
+:::
+
+::: {.column style="text-align: center; width: 33%;"}
+
+Buy a copy
+
+{{< qrcode https://www.routledge.com/9781032660288 >}}
+
+Save 20% with `25AFLY3`
+
+:::
+
+::: {.column style="text-align: center; width: 33%;"}
+
+Me
+
+{{< qrcode https://www.linkedin.com/in/enpiar/ >}}
+<!-- set bsky id so I am enpiar.com -->
+
+:::
+
+
+::::
+
+## Working with cloud storage
+
+<!-- Check time, these may go to after the end -->
+
+<!-- cloud storage: `arrow` has built in support for reading and writing data from object storage like Amazon S3 and Google Cloud Storage. This means you can work with large datasets stored in the cloud without having to download everything to your local machine.
+
+example s3 url, also s3_bucket() for working with auth -->
+
+```r
+
+pums_s3 <- open_dataset("s3://scaling-arrow-pums/person/")
+
+# Query execution with lazy evaluation
+pums_s3 |>
+  filter(year == 2021, location == "ca", AGEP >= 16) |>
+  group_by(year, ST) |>
+  summarize(
+    mean_commute_time = sum(JWMNP * PWGTP, na.rm = TRUE) /
+      sum(PWGTP),
+    count = n()
+  ) |>
+  collect()
+```
+
+## Working with cloud storage
+
+<!-- Can pass in more options for auth etc. this way, not everything is nicely encoded in the URL -->
+<!-- Either way, it uses the AWS SDK and standard AWS auth mechanisms on your machine, so if you have a credential file or environment variables set up, it will just work. -->
+
+```r
+pums_bucket <- s3_bucket("scaling-arrow-pums")
+pums_s3 <- open_dataset(pums_bucket$path("person"))
+
+# Query execution with lazy evaluation
+pums_s3 |>
+  filter(year == 2021, location == "ca", AGEP >= 16) |>
+  group_by(year, ST) |>
+  summarize(
+    mean_commute_time = sum(JWMNP * PWGTP, na.rm = TRUE) /
+      sum(PWGTP),
+    count = n()
+  ) |>
+  collect()
+```
