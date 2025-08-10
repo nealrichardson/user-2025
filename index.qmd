@@ -150,7 +150,7 @@ And links throughout the slides to the chapters in the book where we discuss mor
 <img src="img/book.jpg" alt="book cover" height="300px"/>
 
 <!-- Note: I modified qrcode.lua so that it wraps the QR code in an <a> tag -->
-{{< qrcode www.routledge.com/9781032660288 >}}
+{{< qrcode https://www.routledge.com/9781032660288 >}}
 
 20% off with code `25AFLY3`
 :::
