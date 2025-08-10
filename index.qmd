@@ -82,7 +82,7 @@ editor:
 
 <!-- I'm one of the creators of the `arrow` R package, and most of the examples I'll show are from it.
 
-how many of you are familiar with the arrow package? have used it?
+how many of you are familiar with the arrow package? have used it? were at the workshop on Friday?
 -->
 
 ## <img src="img/arrow-site.png"/>
@@ -138,7 +138,10 @@ toc()
 
 ## There's a book!
 
-<!-- If you want to go deeper on any of these topics, we have a book! -->
+<!-- If you want to go deeper on any of these topics, we have a book!
+
+And links throughout the slides to the chapters in the book where we discuss more
+-->
 
 :::: {.columns}
 
@@ -199,8 +202,6 @@ Let's talk about why it is efficient, and to start, let's talk about how it is d
 
 * **High fidelity, smaller file sizes, faster reads**
 
-* CSV has always been the lowest common denominator, but Parquet is widely supported today
-
 :::
 
 {{< qrcode https://arrowrbook.com/files_and_formats.html#summary >}}
@@ -240,24 +241,6 @@ mtcars_parquet <- read_parquet("mtcars.parquet")
   - Full-featured reader
   - Support for datasets
   - Integration with Arrow ecosystem
-
-## nanoparquet vs. arrow Reader
-
-```r
-system.time({
-  df <- arrow::read_parquet("CA_person_2021.parquet")
-})
-
-##   user  system elapsed
-##  1.017   0.207   0.568
-
-system.time({
-  df <- nanoparquet::read_parquet("CA_person_2021.parquet")
-})
-
-##   user  system elapsed
-##  0.709   0.099   0.894
-```
 
 ## 2. Datasets and partitioning
 
@@ -421,6 +404,14 @@ pums_person |>
 * No computation happens until `collect()`
 
 * This allows optimizations: only need 52 files and 2 columns, not 884 files and 311 columns
+
+## `arrow` has great `dplyr` support
+
+* Currently: 222 R functions, 37 `dplyr` verbs
+
+* All the things you'd expect from `dbplyr`
+
+* Deep support for `stringr` and `lubridate`
 
 ## `arrow` has great `dplyr` support
 <!--

@@ -283,7 +283,7 @@ Neal Richardson
 <h2><img src="img/arrow-hex.png" height="500px"></h2>
 <!-- I'm one of the creators of the `arrow` R package, and most of the examples I'll show are from it.
 
-how many of you are familiar with the arrow package? have used it?
+how many of you are familiar with the arrow package? have used it? were at the workshop on Friday?
 -->
 </section>
 <section id="section-6" class="slide level2">
@@ -334,7 +334,10 @@ how many of you are familiar with the arrow package? have used it?
 </section>
 <section id="theres-a-book" class="slide level2">
 <h2>There’s a book!</h2>
-<!-- If you want to go deeper on any of these topics, we have a book! -->
+<!-- If you want to go deeper on any of these topics, we have a book!
+
+And links throughout the slides to the chapters in the book where we discuss more
+-->
 <div class="columns">
 <div class="column fragment" style="text-align: center;">
 <p><img src="img/book.jpg" alt="book cover" height="300px"></p>
@@ -400,7 +403,6 @@ Let's talk about why it is efficient, and to start, let's talk about how it is d
 <li class="fragment"><p>Types: <strong>rich type system</strong> in Parquet, including nested and complex types</p></li>
 <li class="fragment"><p>Types are preserved in schema, not inferred at read time</p></li>
 <li class="fragment"><p><strong>High fidelity, smaller file sizes, faster reads</strong></p></li>
-<li class="fragment"><p>CSV has always been the lowest common denominator, but Parquet is widely supported today</p></li>
 </ul>
 </div>
 <a href="https://arrowrbook.com/files_and_formats.html#summary" class="qrcode"><div id="" class="qrcode"></div></a>
@@ -451,53 +453,37 @@ Let's talk about why it is efficient, and to start, let's talk about how it is d
 </ul></li>
 </ul>
 </section>
-<section id="nanoparquet-vs.-arrow-reader-1" class="slide level2">
-<h2>nanoparquet vs.&nbsp;arrow Reader</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="fu">system.time</span>({</span>
-<span id="cb4-2"><a href=""></a>  df <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">read_parquet</span>(<span class="st">"CA_person_2021.parquet"</span>)</span>
-<span id="cb4-3"><a href=""></a>})</span>
-<span id="cb4-4"><a href=""></a></span>
-<span id="cb4-5"><a href=""></a><span class="do">##   user  system elapsed</span></span>
-<span id="cb4-6"><a href=""></a><span class="do">##  1.017   0.207   0.568</span></span>
-<span id="cb4-7"><a href=""></a></span>
-<span id="cb4-8"><a href=""></a><span class="fu">system.time</span>({</span>
-<span id="cb4-9"><a href=""></a>  df <span class="ot">&lt;-</span> nanoparquet<span class="sc">::</span><span class="fu">read_parquet</span>(<span class="st">"CA_person_2021.parquet"</span>)</span>
-<span id="cb4-10"><a href=""></a>})</span>
-<span id="cb4-11"><a href=""></a></span>
-<span id="cb4-12"><a href=""></a><span class="do">##   user  system elapsed</span></span>
-<span id="cb4-13"><a href=""></a><span class="do">##  0.709   0.099   0.894</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
 <section id="datasets-and-partitioning" class="slide level2">
 <h2>2. Datasets and partitioning</h2>
 <!-- but in the query I showed above, we didn't read individual files, we 800+ files as one entity -->
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>pums_person</span>
-<span id="cb5-2"><a href=""></a></span>
-<span id="cb5-3"><a href=""></a><span class="do">## FileSystemDataset with 884 Parquet files</span></span>
-<span id="cb5-4"><a href=""></a><span class="do">## 311 columns</span></span>
-<span id="cb5-5"><a href=""></a><span class="do">## SPORDER: int32</span></span>
-<span id="cb5-6"><a href=""></a><span class="do">## RT: dictionary&lt;values=string, indices=int32&gt;</span></span>
-<span id="cb5-7"><a href=""></a><span class="do">## SERIALNO: string</span></span>
-<span id="cb5-8"><a href=""></a><span class="do">## PUMA: string</span></span>
-<span id="cb5-9"><a href=""></a><span class="do">## ST: string</span></span>
-<span id="cb5-10"><a href=""></a><span class="do">## ADJUST: int32</span></span>
-<span id="cb5-11"><a href=""></a><span class="do">## PWGTP: int32</span></span>
-<span id="cb5-12"><a href=""></a>...</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a>pums_person</span>
+<span id="cb4-2"><a href=""></a></span>
+<span id="cb4-3"><a href=""></a><span class="do">## FileSystemDataset with 884 Parquet files</span></span>
+<span id="cb4-4"><a href=""></a><span class="do">## 311 columns</span></span>
+<span id="cb4-5"><a href=""></a><span class="do">## SPORDER: int32</span></span>
+<span id="cb4-6"><a href=""></a><span class="do">## RT: dictionary&lt;values=string, indices=int32&gt;</span></span>
+<span id="cb4-7"><a href=""></a><span class="do">## SERIALNO: string</span></span>
+<span id="cb4-8"><a href=""></a><span class="do">## PUMA: string</span></span>
+<span id="cb4-9"><a href=""></a><span class="do">## ST: string</span></span>
+<span id="cb4-10"><a href=""></a><span class="do">## ADJUST: int32</span></span>
+<span id="cb4-11"><a href=""></a><span class="do">## PWGTP: int32</span></span>
+<span id="cb4-12"><a href=""></a>...</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="datasets-and-partitioning-1" class="slide level2">
 <h2>2. Datasets and partitioning</h2>
 <!-- In fact, that's how our PUMS dataset is stored: -->
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a>pums_person<span class="sc">$</span>files[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>] <span class="sc">|&gt;</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(<span class="st">"^.*data/person/"</span>, <span class="st">""</span>)</span>
-<span id="cb6-2"><a href=""></a></span>
-<span id="cb6-3"><a href=""></a><span class="do">##  [1] "year=2005/location=ak/part-0.parquet"</span></span>
-<span id="cb6-4"><a href=""></a><span class="do">##  [2] "year=2005/location=al/part-0.parquet"</span></span>
-<span id="cb6-5"><a href=""></a><span class="do">##  [3] "year=2005/location=ar/part-0.parquet"</span></span>
-<span id="cb6-6"><a href=""></a><span class="do">##  [4] "year=2005/location=az/part-0.parquet"</span></span>
-<span id="cb6-7"><a href=""></a><span class="do">##  [5] "year=2005/location=ca/part-0.parquet"</span></span>
-<span id="cb6-8"><a href=""></a><span class="do">##  [6] "year=2005/location=co/part-0.parquet"</span></span>
-<span id="cb6-9"><a href=""></a><span class="do">##  [7] "year=2005/location=ct/part-0.parquet"</span></span>
-<span id="cb6-10"><a href=""></a><span class="do">##  [8] "year=2005/location=dc/part-0.parquet"</span></span>
-<span id="cb6-11"><a href=""></a><span class="do">##  [9] "year=2005/location=de/part-0.parquet"</span></span>
-<span id="cb6-12"><a href=""></a><span class="do">## [10] "year=2005/location=fl/part-0.parquet"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a>pums_person<span class="sc">$</span>files[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>] <span class="sc">|&gt;</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(<span class="st">"^.*data/person/"</span>, <span class="st">""</span>)</span>
+<span id="cb5-2"><a href=""></a></span>
+<span id="cb5-3"><a href=""></a><span class="do">##  [1] "year=2005/location=ak/part-0.parquet"</span></span>
+<span id="cb5-4"><a href=""></a><span class="do">##  [2] "year=2005/location=al/part-0.parquet"</span></span>
+<span id="cb5-5"><a href=""></a><span class="do">##  [3] "year=2005/location=ar/part-0.parquet"</span></span>
+<span id="cb5-6"><a href=""></a><span class="do">##  [4] "year=2005/location=az/part-0.parquet"</span></span>
+<span id="cb5-7"><a href=""></a><span class="do">##  [5] "year=2005/location=ca/part-0.parquet"</span></span>
+<span id="cb5-8"><a href=""></a><span class="do">##  [6] "year=2005/location=co/part-0.parquet"</span></span>
+<span id="cb5-9"><a href=""></a><span class="do">##  [7] "year=2005/location=ct/part-0.parquet"</span></span>
+<span id="cb5-10"><a href=""></a><span class="do">##  [8] "year=2005/location=dc/part-0.parquet"</span></span>
+<span id="cb5-11"><a href=""></a><span class="do">##  [9] "year=2005/location=de/part-0.parquet"</span></span>
+<span id="cb5-12"><a href=""></a><span class="do">## [10] "year=2005/location=fl/part-0.parquet"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>“Hive-style partitioning”: both column names and values are encoded in the file path</p>
 </section>
 <section id="datasets-and-partitioning-2" class="slide level2">
@@ -522,27 +508,27 @@ Let's talk about why it is efficient, and to start, let's talk about how it is d
 <section id="datasets-and-partitioning-3" class="slide level2">
 <h2>2. Datasets and partitioning</h2>
 <p>Example query from before:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>pums_person <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a href=""></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2021</span>, <span class="fu">grepl</span>(<span class="st">"Subway|Light rail"</span>, JWTRNS)) <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href=""></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">sum</span>(PWGTP)) <span class="sc">|&gt;</span></span>
-<span id="cb7-4"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a>pums_person <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href=""></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2021</span>, <span class="fu">grepl</span>(<span class="st">"Subway|Light rail"</span>, JWTRNS)) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href=""></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">sum</span>(PWGTP)) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We didn’t have to scan 884 files, we only had to scan the 52 files that contain data for the year 2021: <!-- but don't talk about column selection here, save that for query engine --></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a>pums_person<span class="sc">$</span>files <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href=""></a>  stringr<span class="sc">::</span><span class="fu">str_detect</span>(<span class="st">"year=2021"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-3"><a href=""></a>  <span class="fu">sum</span>()</span>
-<span id="cb8-4"><a href=""></a></span>
-<span id="cb8-5"><a href=""></a><span class="do">## [1] 52</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href=""></a>pums_person<span class="sc">$</span>files <span class="sc">|&gt;</span></span>
+<span id="cb7-2"><a href=""></a>  stringr<span class="sc">::</span><span class="fu">str_detect</span>(<span class="st">"year=2021"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href=""></a>  <span class="fu">sum</span>()</span>
+<span id="cb7-4"><a href=""></a></span>
+<span id="cb7-5"><a href=""></a><span class="do">## [1] 52</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="how-to-repartition-with-arrow" class="slide level2">
 <h2>How to (re)partition with arrow</h2>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a>my_dataset <span class="ot">&lt;-</span> <span class="fu">open_csv_dataset</span>(<span class="at">path =</span> <span class="st">"./data/my-oversized-csv.csv"</span>)</span>
-<span id="cb9-2"><a href=""></a></span>
-<span id="cb9-3"><a href=""></a>my_dataset <span class="sc">|&gt;</span></span>
-<span id="cb9-4"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(datetime), <span class="at">month =</span> <span class="fu">month</span>(datetime)) <span class="sc">|&gt;</span></span>
-<span id="cb9-5"><a href=""></a>  <span class="fu">write_dataset</span>(</span>
-<span id="cb9-6"><a href=""></a>    <span class="at">path =</span> <span class="st">"./data/my-much-nicer-parquet-dataset"</span>,</span>
-<span id="cb9-7"><a href=""></a>    <span class="at">partitioning =</span> <span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"month"</span>)</span>
-<span id="cb9-8"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a>my_dataset <span class="ot">&lt;-</span> <span class="fu">open_csv_dataset</span>(<span class="at">path =</span> <span class="st">"./data/my-oversized-csv.csv"</span>)</span>
+<span id="cb8-2"><a href=""></a></span>
+<span id="cb8-3"><a href=""></a>my_dataset <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(datetime), <span class="at">month =</span> <span class="fu">month</span>(datetime)) <span class="sc">|&gt;</span></span>
+<span id="cb8-5"><a href=""></a>  <span class="fu">write_dataset</span>(</span>
+<span id="cb8-6"><a href=""></a>    <span class="at">path =</span> <span class="st">"./data/my-much-nicer-parquet-dataset"</span>,</span>
+<span id="cb8-7"><a href=""></a>    <span class="at">partitioning =</span> <span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"month"</span>)</span>
+<span id="cb8-8"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><p>Can point at a single large file that you can’t read into memory: <code>arrow</code> can process in chunks</p></li>
 <li><p>Can use a dataset that already has partitions and write to new partitions</p></li>
@@ -607,10 +593,10 @@ one great feature of this architecture is that you don't need some service alway
 
 To do this with dplyr, arrow works similarly to `dbplyr` and builds up a query with each step in your pipeline, and it only evaluates it when you call `collect()`. [show example query output; also show how this means it can determine that not only do we only need those 52 files, we only touch 2 other columns in the data, so we don't even need to read in the other 309.]
 -->
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a>pums_person <span class="sc">|&gt;</span></span>
-<span id="cb10-2"><a href=""></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2021</span>, <span class="fu">grepl</span>(<span class="st">"Subway|Light rail"</span>, JWTRNS)) <span class="sc">|&gt;</span></span>
-<span id="cb10-3"><a href=""></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">sum</span>(PWGTP)) <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a>pums_person <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href=""></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2021</span>, <span class="fu">grepl</span>(<span class="st">"Subway|Light rail"</span>, JWTRNS)) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href=""></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">sum</span>(PWGTP)) <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li><p>Each step builds up a query, like <code>dbplyr</code></p></li>
 <li><p>No computation happens until <code>collect()</code></p></li>
@@ -619,24 +605,32 @@ To do this with dplyr, arrow works similarly to `dbplyr` and builds up a query w
 </section>
 <section id="arrow-has-great-dplyr-support" class="slide level2">
 <h2><code>arrow</code> has great <code>dplyr</code> support</h2>
+<ul>
+<li><p>Currently: 222 R functions, 37 <code>dplyr</code> verbs</p></li>
+<li><p>All the things you’d expect from <code>dbplyr</code></p></li>
+<li><p>Deep support for <code>stringr</code> and <code>lubridate</code></p></li>
+</ul>
+</section>
+<section id="arrow-has-great-dplyr-support-1" class="slide level2">
+<h2><code>arrow</code> has great <code>dplyr</code> support</h2>
 <!--
 `arrow` has great dplyr support, including mappings for over 200 R functions, much of `stringr` and `lubridate`, so you can use your existing R code with it, and it will get turned into the query structure that it needs.
 
 then what about duckdb
 -->
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a>pums_person <span class="sc">|&gt;</span></span>
-<span id="cb11-2"><a href=""></a>  <span class="fu">filter</span>(AGEP <span class="sc">&gt;</span> <span class="dv">18</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-3"><a href=""></a>  <span class="fu">transmute</span>(</span>
-<span id="cb11-4"><a href=""></a>    <span class="at">higher_education =</span> stringr<span class="sc">::</span><span class="fu">str_detect</span>(SCHL, <span class="st">"(Bach|Mast|Prof|Doct|college|degree)"</span>)</span>
-<span id="cb11-5"><a href=""></a>  )</span>
-<span id="cb11-6"><a href=""></a></span>
-<span id="cb11-7"><a href=""></a><span class="do">## FileSystemDataset (query)</span></span>
-<span id="cb11-8"><a href=""></a><span class="do">## higher_education: bool (match_substring_regex(SCHL, {pattern="(Bach|Mast|Prof|Doct|college|degree)", ignore_case=false}))</span></span>
-<span id="cb11-9"><a href=""></a><span class="do">##</span></span>
-<span id="cb11-10"><a href=""></a><span class="do">## * Filter: (AGEP &gt; 18)</span></span>
-<span id="cb11-11"><a href=""></a><span class="do">## See $.data for the source Arrow object</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a>pums_person <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href=""></a>  <span class="fu">filter</span>(AGEP <span class="sc">&gt;</span> <span class="dv">18</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href=""></a>  <span class="fu">transmute</span>(</span>
+<span id="cb10-4"><a href=""></a>    <span class="at">higher_education =</span> stringr<span class="sc">::</span><span class="fu">str_detect</span>(SCHL, <span class="st">"(Bach|Mast|Prof|Doct|college|degree)"</span>)</span>
+<span id="cb10-5"><a href=""></a>  )</span>
+<span id="cb10-6"><a href=""></a></span>
+<span id="cb10-7"><a href=""></a><span class="do">## FileSystemDataset (query)</span></span>
+<span id="cb10-8"><a href=""></a><span class="do">## higher_education: bool (match_substring_regex(SCHL, {pattern="(Bach|Mast|Prof|Doct|college|degree)", ignore_case=false}))</span></span>
+<span id="cb10-9"><a href=""></a><span class="do">##</span></span>
+<span id="cb10-10"><a href=""></a><span class="do">## * Filter: (AGEP &gt; 18)</span></span>
+<span id="cb10-11"><a href=""></a><span class="do">## See $.data for the source Arrow object</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="arrow-has-great-dplyr-support-1" class="slide level2">
+<section id="arrow-has-great-dplyr-support-2" class="slide level2">
 <h2><code>arrow</code> has great <code>dplyr</code> support</h2>
 <ul>
 <li><p>Currently: 222 R functions, 37 <code>dplyr</code> verbs</p></li>
@@ -695,28 +689,28 @@ then what about duckdb
 <img src="img/arrow-and-duckdb.png" class="r-stretch"></section>
 <section id="arrow-and-duckdb" class="slide level2">
 <h2>arrow <em>and</em> duckdb</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a>pums_person <span class="sc">|&gt;</span></span>
-<span id="cb12-2"><a href=""></a>  <span class="fu">group_by</span>(location) <span class="sc">|&gt;</span></span>
-<span id="cb12-3"><a href=""></a>  <span class="fu">summarize</span>(</span>
-<span id="cb12-4"><a href=""></a>    <span class="at">max_commute =</span> <span class="fu">max</span>(JWMNP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb12-5"><a href=""></a>    <span class="at">min_commute =</span> <span class="fu">min</span>(JWMNP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-6"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb12-7"><a href=""></a>  <span class="fu">to_duckdb</span>() <span class="sc">|&gt;</span> <span class="co"># send data to duckdb</span></span>
-<span id="cb12-8"><a href=""></a>  <span class="fu">pivot_longer</span>(<span class="sc">!</span>location, <span class="at">names_to =</span> <span class="st">"metric"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-9"><a href=""></a>  <span class="fu">to_arrow</span>() <span class="sc">|&gt;</span> <span class="co"># return data back to arrow</span></span>
-<span id="cb12-10"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a>pums_person <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href=""></a>  <span class="fu">group_by</span>(location) <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href=""></a>  <span class="fu">summarize</span>(</span>
+<span id="cb11-4"><a href=""></a>    <span class="at">max_commute =</span> <span class="fu">max</span>(JWMNP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb11-5"><a href=""></a>    <span class="at">min_commute =</span> <span class="fu">min</span>(JWMNP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-6"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb11-7"><a href=""></a>  <span class="fu">to_duckdb</span>() <span class="sc">|&gt;</span> <span class="co"># send data to duckdb</span></span>
+<span id="cb11-8"><a href=""></a>  <span class="fu">pivot_longer</span>(<span class="sc">!</span>location, <span class="at">names_to =</span> <span class="st">"metric"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-9"><a href=""></a>  <span class="fu">to_arrow</span>() <span class="sc">|&gt;</span> <span class="co"># return data back to arrow</span></span>
+<span id="cb11-10"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="arrow-and-duckdb-1" class="slide level2">
 <h2>arrow <em>and</em> duckdb</h2>
-<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="fu">open_dataset</span>(<span class="st">"gs://anonymous@scaling-arrow-pums/person/"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-2"><a href=""></a>  <span class="fu">to_duckdb</span>(<span class="at">table_name =</span> <span class="st">"pums8"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href=""></a>  dbplyr<span class="sc">::</span><span class="fu">remote_con</span>() <span class="sc">|&gt;</span></span>
-<span id="cb13-4"><a href=""></a>  DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(<span class="st">"</span></span>
-<span id="cb13-5"><a href=""></a><span class="st">    SELECT</span></span>
-<span id="cb13-6"><a href=""></a><span class="st">      year,</span></span>
-<span id="cb13-7"><a href=""></a><span class="st">      SUM(AGEP * PWGTP) / SUM(PWGTP) AS mean_age</span></span>
-<span id="cb13-8"><a href=""></a><span class="st">    FROM (SELECT * FROM pums8 WHERE location = 'wa')</span></span>
-<span id="cb13-9"><a href=""></a><span class="st">    GROUP BY year"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a><span class="fu">open_dataset</span>(<span class="st">"gs://anonymous@scaling-arrow-pums/person/"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href=""></a>  <span class="fu">to_duckdb</span>(<span class="at">table_name =</span> <span class="st">"pums8"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href=""></a>  dbplyr<span class="sc">::</span><span class="fu">remote_con</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href=""></a>  DBI<span class="sc">::</span><span class="fu">dbGetQuery</span>(<span class="st">"</span></span>
+<span id="cb12-5"><a href=""></a><span class="st">    SELECT</span></span>
+<span id="cb12-6"><a href=""></a><span class="st">      year,</span></span>
+<span id="cb12-7"><a href=""></a><span class="st">      SUM(AGEP * PWGTP) / SUM(PWGTP) AS mean_age</span></span>
+<span id="cb12-8"><a href=""></a><span class="st">    FROM (SELECT * FROM pums8 WHERE location = 'wa')</span></span>
+<span id="cb12-9"><a href=""></a><span class="st">    GROUP BY year"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="key-takeaways" class="slide level2">
 <h2>Key takeaways</h2>
@@ -818,8 +812,26 @@ then what about duckdb
 <!-- cloud storage: `arrow` has built in support for reading and writing data from object storage like Amazon S3 and Google Cloud Storage. This means you can work with large datasets stored in the cloud without having to download everything to your local machine.
 
 example s3 url, also s3_bucket() for working with auth -->
-<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a></span>
-<span id="cb14-2"><a href=""></a>pums_s3 <span class="ot">&lt;-</span> <span class="fu">open_dataset</span>(<span class="st">"s3://scaling-arrow-pums/person/"</span>)</span>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a></span>
+<span id="cb13-2"><a href=""></a>pums_s3 <span class="ot">&lt;-</span> <span class="fu">open_dataset</span>(<span class="st">"s3://scaling-arrow-pums/person/"</span>)</span>
+<span id="cb13-3"><a href=""></a></span>
+<span id="cb13-4"><a href=""></a><span class="co"># Query execution with lazy evaluation</span></span>
+<span id="cb13-5"><a href=""></a>pums_s3 <span class="sc">|&gt;</span></span>
+<span id="cb13-6"><a href=""></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2021</span>, location <span class="sc">==</span> <span class="st">"ca"</span>, AGEP <span class="sc">&gt;=</span> <span class="dv">16</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-7"><a href=""></a>  <span class="fu">group_by</span>(year, ST) <span class="sc">|&gt;</span></span>
+<span id="cb13-8"><a href=""></a>  <span class="fu">summarize</span>(</span>
+<span id="cb13-9"><a href=""></a>    <span class="at">mean_commute_time =</span> <span class="fu">sum</span>(JWMNP <span class="sc">*</span> PWGTP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span></span>
+<span id="cb13-10"><a href=""></a>      <span class="fu">sum</span>(PWGTP),</span>
+<span id="cb13-11"><a href=""></a>    <span class="at">count =</span> <span class="fu">n</span>()</span>
+<span id="cb13-12"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb13-13"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="working-with-cloud-storage-1" class="slide level2">
+<h2>Working with cloud storage</h2>
+<!-- Can pass in more options for auth etc. this way, not everything is nicely encoded in the URL -->
+<!-- Either way, it uses the AWS SDK and standard AWS auth mechanisms on your machine, so if you have a credential file or environment variables set up, it will just work. -->
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a>pums_bucket <span class="ot">&lt;-</span> <span class="fu">s3_bucket</span>(<span class="st">"scaling-arrow-pums"</span>)</span>
+<span id="cb14-2"><a href=""></a>pums_s3 <span class="ot">&lt;-</span> <span class="fu">open_dataset</span>(pums_bucket<span class="sc">$</span><span class="fu">path</span>(<span class="st">"person"</span>))</span>
 <span id="cb14-3"><a href=""></a></span>
 <span id="cb14-4"><a href=""></a><span class="co"># Query execution with lazy evaluation</span></span>
 <span id="cb14-5"><a href=""></a>pums_s3 <span class="sc">|&gt;</span></span>
@@ -831,24 +843,6 @@ example s3 url, also s3_bucket() for working with auth -->
 <span id="cb14-11"><a href=""></a>    <span class="at">count =</span> <span class="fu">n</span>()</span>
 <span id="cb14-12"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb14-13"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section id="working-with-cloud-storage-1" class="slide level2">
-<h2>Working with cloud storage</h2>
-<!-- Can pass in more options for auth etc. this way, not everything is nicely encoded in the URL -->
-<!-- Either way, it uses the AWS SDK and standard AWS auth mechanisms on your machine, so if you have a credential file or environment variables set up, it will just work. -->
-<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>pums_bucket <span class="ot">&lt;-</span> <span class="fu">s3_bucket</span>(<span class="st">"scaling-arrow-pums"</span>)</span>
-<span id="cb15-2"><a href=""></a>pums_s3 <span class="ot">&lt;-</span> <span class="fu">open_dataset</span>(pums_bucket<span class="sc">$</span><span class="fu">path</span>(<span class="st">"person"</span>))</span>
-<span id="cb15-3"><a href=""></a></span>
-<span id="cb15-4"><a href=""></a><span class="co"># Query execution with lazy evaluation</span></span>
-<span id="cb15-5"><a href=""></a>pums_s3 <span class="sc">|&gt;</span></span>
-<span id="cb15-6"><a href=""></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="dv">2021</span>, location <span class="sc">==</span> <span class="st">"ca"</span>, AGEP <span class="sc">&gt;=</span> <span class="dv">16</span>) <span class="sc">|&gt;</span></span>
-<span id="cb15-7"><a href=""></a>  <span class="fu">group_by</span>(year, ST) <span class="sc">|&gt;</span></span>
-<span id="cb15-8"><a href=""></a>  <span class="fu">summarize</span>(</span>
-<span id="cb15-9"><a href=""></a>    <span class="at">mean_commute_time =</span> <span class="fu">sum</span>(JWMNP <span class="sc">*</span> PWGTP, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span></span>
-<span id="cb15-10"><a href=""></a>      <span class="fu">sum</span>(PWGTP),</span>
-<span id="cb15-11"><a href=""></a>    <span class="at">count =</span> <span class="fu">n</span>()</span>
-<span id="cb15-12"><a href=""></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb15-13"><a href=""></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </section>
     </div>
